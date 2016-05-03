@@ -34,7 +34,6 @@ HINT: Apple has done most of the hard work for you in the class CLLocation. See 
  5. When completed, before the class the problem set is due, commit your changes to your fork of the repository. I should be able to simply clone your fork, build it and execute it in my environment without encountering any warnings, adding any dependencies or making any modifications.
  
  ## Unit tests that Run Automatically */
-
 import CoreLocation
 
 struct LocationTrack {
@@ -43,7 +42,17 @@ struct LocationTrack {
     
     var length: CLLocationDistance {
         // this function should sum up all the distances between the locations in the track
-        return 1000.0 // right now it just returns 1000 (in meters, which is one kilometer).
+        var distance: Double = 0
+        let count = locations.count
+        if count == 0 {
+            return distance
+        }
+        else {
+            for i in 0..<count-1 {
+                distance += locations[i].distanceFromLocation(locations[i+1])
+            }
+        }
+        return distance
     }
     
 }
@@ -64,6 +73,15 @@ class LocationTrackTestSuite: XCTestCase {
         let onePointTrack = LocationTrack(locations: [oakland])
         let expectedResult: CLLocationDistance = 0
         XCTAssertEqual(expectedResult, onePointTrack.length, "Single point track should have zero length.")
+    }
+    
+    func testLengthOfTrackWithThreePoints() {
+        let sanFrancisco = CLLocation(latitude: 37.7749, longitude: 122.4194)
+        let oakland = CLLocation(latitude: 37.8044, longitude: 122.2711)
+        let moraga = CLLocation(latitude: 37.8349, longitude: 122.1296)
+        let threePointTrack = LocationTrack(locations: [sanFrancisco, oakland, moraga])
+        let expectedResult = threePointTrack.length>15000 && threePointTrack.length<30000
+        XCTAssertEqual(expectedResult, true, "Three point track should be between 1500 and 30000 meters.")
     }
     
     
